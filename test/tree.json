@@ -12,18 +12,10 @@
             "exports": []
         },
         "1": {
-            "id": 1,
+            "id": 0,
             "name": "testFile.js",
             "type": "file",
             "path": "./testFile.js",
-            "imports": [],
-            "exports": []
-        },
-        "2": {
-            "id": 2,
-            "name": "tree.json",
-            "type": "file",
-            "path": "./tree.json",
             "imports": [],
             "exports": []
         }
