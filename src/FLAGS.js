@@ -43,10 +43,6 @@ let ANONYMOUS_FUNCTION_DEF = false;
  */
 let GIVEN_DEF = false;
 
-let DESCRIPTION_ON = false;
-
-let COMMENT_ON = false;
-
 let EXTENDS = {
     super: null
 }
@@ -59,23 +55,30 @@ let DOCANIZE_FLAG_CAPTURED = false;
 
 let USER_DESCRIPTION_CAPTURED = false;
 
+let NEW_FLAGS = false;
+
+let ENTITY_OPEN = false;
+
 let MAKE_ENTITY = false;
+
+let ENTITY_PARAMS_CAPTURED = false;
 
 module.exports = {
     LINE_GAP,
+    ENTITY_OPEN,
     CLASS_CONSTRUCTOR_DEF,
     ANONYMOUS_FUNCTION_DEF,
-    SCOPE_ON,
     CLASS_SCOPE,
-    IS_METHOD,
     FUNCTION_SCOPE,
+    METHOD_SCOPE,
     RETURN_VAL,
     GIVEN_DEF,
-    COMMENT_ON,
     EXTENDS,
     SINGLE_LINE_DESCRIPTION,
     MULTI_LINE_DESCRIPTION,
     DOCANIZE_FLAG_CAPTURED,
     USER_DESCRIPTION_CAPTURED,
-    MAKE_ENTITY
+    MAKE_ENTITY,
+    NEW_FLAGS,
+    ENTITY_PARAMS_CAPTURED
 }

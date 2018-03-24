@@ -43,7 +43,7 @@ async function makeDirTree() {
             dirTree[activeDir.name] = activeDir;
         }
         dirTree = dirTree.root;
-        res(AllFiles);
+        res([dirTree, AllFiles]);
     })
 }
 
@@ -65,7 +65,6 @@ function walkTree(dirPath) {
 
         const relative = `${dirPath}/`,
             readPath = dirPath === '.' ? ROOT + '/' : dirPath + '/';
-
         readdir(path.resolve(readPath))
             .then(files => {
                 files.map(async(i) => {

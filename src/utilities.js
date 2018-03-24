@@ -15,7 +15,7 @@ const fs = require('fs'),
 
 function editData(entity, data) {
     const lineNumber = entity.lineNumber;
-    const comment = entity.formComment();
+    let comment = entity.formComment();
     data = data.split('\n');
     comment = comment.split('\n');
     data.slice(0, lineNumber)
@@ -39,7 +39,7 @@ function updateFileData(entities, data, path) {
     return new Promise(async(res, rej) => {
         entities.map(i => editData(i, data));
         try {
-            await writeFile(path, data);
+            await writeFile(path.resolve(process.cwd(), path), data);
             res();
         } catch (err) {
             rej();
@@ -47,8 +47,24 @@ function updateFileData(entities, data, path) {
     })
 }
 
+function checkLineForEntity(line) {
+    let containsEntity, entity, name;
+    if (line.match(/(?:(class|function)).*(\(|\{)/gm))
+        containsEntity = true;
+
+    entity = line.indexOf('class') > -1 ? 'class' :
+        line.indexOf('function') > -1 ? 'function' :
+        line.match(/(?:(\(.*)\))/) ? 'funcOrMeth' : null;
+
+    if (entity) {
+        line = line.split();
+        name = line[];
+    }
+    return [containsEntity, entity, name];
+}
+
 module.exports = {
-    editLinks,
-    formEntities,
+    editData,
+    checkLineForEntity,
     updateFileData
 }

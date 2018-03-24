@@ -36,12 +36,11 @@ const dTypes = [
 ];
 
 class Entity {
-    constructor({ entity, name, flags, subEntities }, lineNumber) {
-        this.keyword = entity;
-        this.name = name;
-        this.flags = flags;
-        this.description = 'none';
-        this.scopeOn = true;
+    constructor(props) {
+        this.keyword = props.entity;
+        this.name = props.name;
+        this.flags = props.flags;
+        this.description = props.description || 'No Description';
         this.lineNumber = 0;
         this.returnVal = null;
         // array of subEntities objects
@@ -66,14 +65,13 @@ class Entity {
         }
 
         comment += '\n */';
-
         return comment;
     }
 }
 
 class SubEntity {
-    constructor({ keyword = '', type = '', name = '', description = 'none' } = {}) {
-        this.keyword = keyword;
+    constructor(props) {
+        this.keyword = props;
         this.dtype = type;
         this.name = name;
         this.description = description;
