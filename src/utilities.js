@@ -17,11 +17,12 @@ const fs = require('fs'),
 function editData(entity, data) {
     const lineNumber = entity.lineNumber;
     let comment = entity.formComment();
-    if (entity.flags.PREVIOUS_COMMENT) {
-        data = data.slice(0, entity.flags.PREVIOUS_COMMENT_START)
-            .concat(data.slice(entity.flags.PREVIOUS_COMMENT_END + 1));
-    }
     data = data.split('\n');
+    // if (entity.flags.PREVIOUS_COMMENT) {
+    //     data = data.slice(0, entity.flags.PREVIOUS_COMMENT_START - 1)
+    //         .concat(data.slice(entity.flags.PREVIOUS_COMMENT_END + 1));
+    // }
+    // console.log(data);
     comment = comment.split('\n');
     data = data.slice(0, lineNumber - 1)
         .concat(comment)
@@ -74,8 +75,10 @@ function checkLineForEntity(line) {
     if (capture) {
         containsEntity = true;
         entity = capture[1];
-        // if (entity !== 'function' || entity !== 'class')
-        //     entity = line.match(/(?:(\(.*)\)(\{|\n\{))/gm) ? 'funcOrMeth' : null;
+        console.log(entity);
+        // if (entity !== 'function' || entity !== 'class') {
+        //     entity = line.match(/(?:(\(.*)\)?(\{|\n\{))/gm) ? 'funcOrMeth' : null;
+        // }
     }
     if (entity) {
         let possibleNames = line.split(' ').filter(i => !i.match(

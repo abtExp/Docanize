@@ -26,46 +26,43 @@ module.exports = function(line, lineNumber) {
     }
 
     //*1. Checking for @docanize specific comments
-    if (line.match(/^[(\/)|\/\*\* ].*@docanize/)) {
-        FLAGS.PREVIOUS_COMMENT = true;
-        FLAGS.PREVIOUS_COMMENT_START = lineNumber;
-        if (line.indexOf('//') === 0)
-            FLAGS.SINGLE_LINE_DESCRIPTION = true;
-        else if (line.indexOf('/*') === 0)
-            FLAGS.MULTI_LINE_DESCRIPTION = true;
-        FLAGS.GIVEN_DEF = true;
-    }
+    // if (line.match(/^[(\/)|\/\*\* ].*@docanize/)) {
+    //     FLAGS.PREVIOUS_COMMENT = true;
+    //     FLAGS.PREVIOUS_COMMENT_START = lineNumber;
+    //     if (line.indexOf('//') === 0)
+    //         FLAGS.SINGLE_LINE_DESCRIPTION = true;
+    //     else if (line.indexOf('/*') === 0)
+    //         FLAGS.MULTI_LINE_DESCRIPTION = true;
+    //     FLAGS.GIVEN_DEF = true;
+    // }
+    // if (FLAGS.SINGLE_LINE_DESCRIPTION) {
+    //     props.docanizeFlag = line.substring(
+    //         line.indexOf('--' + 2), line.indexOf(':')
+    //     ).trim();
+    //     FLAGS.DOCANIZE_FLAG_CAPTURED = true;
+    //     props[props.docanizeFlag] = line.substring(line.indexOf(':') + 1);
+    //     FLAGS.USER_DESCRIPTION_CAPTURED = true;
+    //     FLAGS.PREVIOUS_COMMENT_END = lineNumber;
+    // }
 
-    // if docanize comment found and is a sigle line comment
-    // find the flag and the description of entity
-    if (FLAGS.SINGLE_LINE_DESCRIPTION) {
-        props.docanizeFlag = line.substring(
-            line.indexOf('--' + 2), line.indexOf(':')
-        ).trim();
-        FLAGS.DOCANIZE_FLAG_CAPTURED = true;
-        props[props.docanizeFlag] = line.substring(line.indexOf(':') + 1);
-        FLAGS.USER_DESCRIPTION_CAPTURED = true;
-        FLAGS.PREVIOUS_COMMENT_END = lineNumber;
-    }
-
-    // for multiline docanize comment
-    if (FLAGS.MULTI_LINE_DESCRIPTION) {
-        if (!FLAGS.DOCANIZE_FLAG_CAPTURED) {
-            if (line.match('--')) {
-                props.docanizeFlag = line.substring(
-                    line.indexOf('--' + 2), line.indexOf(':')
-                ).trim();
-            } else return null;
-        }
-        if (!FLAGS.USER_DESCRIPTION_CAPTURED) {
-            props[props.docanizeFlag] += line;
-        }
-    }
-    if (line.match(/\*\//) && !FLAGS.USER_DESCRIPTION_CAPTURED) {
-        props[props.docanizeFlag] += line.substring(0, line.lastIndexOf('*'));
-        FLAGS.USER_DESCRIPTION_CAPTURED = true;
-        FLAGS.PREVIOUS_COMMENT_END = lineNumber;
-    }
+    // // for multiline docanize comment
+    // if (FLAGS.MULTI_LINE_DESCRIPTION) {
+    //     if (!FLAGS.DOCANIZE_FLAG_CAPTURED) {
+    //         if (line.match('--')) {
+    //             props.docanizeFlag = line.substring(
+    //                 line.indexOf('--' + 2), line.indexOf(':')
+    //             ).trim();
+    //         } else return null;
+    //     }
+    //     if (!FLAGS.USER_DESCRIPTION_CAPTURED) {
+    //         props[props.docanizeFlag] += line;
+    //     }
+    // }
+    // if (line.match(/\*\//) && !FLAGS.USER_DESCRIPTION_CAPTURED) {
+    //     props[props.docanizeFlag] += line.substring(0, line.lastIndexOf('*'));
+    //     FLAGS.USER_DESCRIPTION_CAPTURED = true;
+    //     FLAGS.PREVIOUS_COMMENT_END = lineNumber;
+    // }
 
     // OTHER CHECKS
 
