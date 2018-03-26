@@ -1,15 +1,17 @@
 const { Entity, SubEntity } = require('./Entities');
 const { checkLineForEntity, captureParams } = require('./utilities');
+const FLAGS_DEF = require('./FLAGS');
+let FLAGS = new FLAGS_DEF();
 
-module.exports = function(line, lineNumber, FLAGS) {
+module.exports = function(line, lineNumber) {
     //match the entityTypes and create a new entity object
     //then look for subEntities and their dTypes
     let props = {};
     props.lineNumber = lineNumber;
     if (FLAGS.KEEP_SCOPE) {
-        FLAGS = require('./FLAGS');
+        FLAGS = new FLAGS_DEF();
         FLAGS.CLASS_SCOPE = true;
-    } else if (FLAGS.NEW_FLAGS) FLAGS = require('./FLAGS');
+    } else if (FLAGS.NEW_FLAGS) new FLAGS_DEF();
 
 
     //*1. Checking for @docanize specific comments
@@ -40,7 +42,7 @@ module.exports = function(line, lineNumber, FLAGS) {
                 props.docanizeFlag = line.substring(
                     line.indexOf('--' + 2), line.indexOf(':')
                 ).trim();
-            } else return [FLAGS, null];
+            } else return null;
         }
         if (!FLAGS.USER_DESCRIPTION_CAPTURED) {
             props[props.docanizeFlag] += line;
@@ -55,7 +57,8 @@ module.exports = function(line, lineNumber, FLAGS) {
 
     // if no entity is open
     if (!FLAGS.ENTITY_OPEN) {
-        const [containsEntity, entityType, entityName] = checkLineForEntity(line);
+        const [containsEntity, entityType, entityName] =
+        checkLineForEntity(line);
         if (containsEntity) {
             FLAGS.ENTITY_OPEN = true;
             FLAGS.NEW_FLAGS = false;
@@ -76,11 +79,11 @@ module.exports = function(line, lineNumber, FLAGS) {
                 FLAGS.ENTITY_OPEN = false;
                 FLAGS.MAKE_ENTITY = true;
             }
-        } else return [FLAGS, null];
+        } else return null;
     }
 
-    if (FLAGS.ENTITY_OPEN) {
-        captureParams(line, props, SubEntity);
+    if (FLAGS.FUNCTION_SCOPE || FLAGS.METHOD_SCOPE) {
+        props = captureParams(line, props, SubEntity);
         FLAGS.ENTITY_PARAMS_CAPTURED = true;
         FLAGS.ENTITY_OPEN = false;
         FLAGS.MAKE_ENTITY = true;
@@ -89,8 +92,7 @@ module.exports = function(line, lineNumber, FLAGS) {
     // FINALLY
     if (FLAGS.MAKE_ENTITY) {
         props.flags = FLAGS;
-        FLAGS.CLASS_SCOPE = false;
         FLAGS.NEW_FLAGS = true;
-        return [FLAGS, new Entity(props)];
-    } else return [FLAGS, null];
+        return new Entity(props);
+    } else return null;
 }

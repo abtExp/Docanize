@@ -8,8 +8,6 @@ const readFile = util.promisify(fs.readFile);
 
 const ROOT = process.cwd();
 
-let FLAGS = require('./FLAGS');
-
 /**
  * @function generateComments - Generates JSDoc style comments and places 
  *                              them at the specified position
@@ -37,8 +35,7 @@ module.exports = function generateComments(files) {
                         entityObjects = data.split('\n').map(i => {
                             lineNumber++;
                             let entity;
-                            [FLAGS, entity] = findEntities(i, lineNumber, FLAGS);
-                            return entity;
+                            return findEntities(i, lineNumber);
                         }).filter(i => i !== null);
                         await updateFileData(entityObjects, data, i.path);
                         res();

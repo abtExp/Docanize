@@ -64,6 +64,7 @@ class Entity {
             comment += `\n * @returns ${this.returnVal}`;
         }
         comment += '\n */';
+        console.log(comment);
         return comment;
     }
 }

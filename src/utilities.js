@@ -70,13 +70,15 @@ function checkLineForEntity(line) {
     if (capture) {
         containsEntity = true;
         entity = capture[1];
-        if (!entity) entity = line.match(/(?:(\(.*)\))/) ? 'funcOrMeth' : null;
+        // if (entity !== 'function' || entity !== 'class')
+        //     entity = line.match(/(?:(\(.*)\))/) ? 'funcOrMeth' : null;
     }
     if (entity) {
         let possibleNames = line.split(' ').filter(i => !i.match(
             /class|function|export|extends|default|=|:|\n|\r|const|let|var/
         ));
         name = possibleNames[0];
+        name = name.indexOf('(') > -1 ? name.substring(0, name.indexOf('(')) : name;
     }
     return [containsEntity, entity, name];
 }
@@ -93,13 +95,15 @@ function captureParams(line, props, SubEntity) {
         typeDefs = [];
     if (line.match(/.*\(.*\).*/)) {
         subEntities = line.substring(
-            line.indexOf('('), line.lastIndexOf(')')
+            line.indexOf('(') + 1, line.lastIndexOf(')')
         ).split(',');
         typeDefs = props.docanizeFlag === 'type' ?
             props[props.docanizeFlag] : subEntities.some(i => {
                 i.indexOf(':') > -1;
             }) ? subEntities.map(i => i.substring(i.indexOf(':' + 1))) : [];
     }
+
+    console.log(subEntities);
     props.subEntities = [];
     for (let i = 0; i < subEntities.length; i++) {
         props.subEntities.push(new SubEntity({
@@ -108,6 +112,7 @@ function captureParams(line, props, SubEntity) {
             name: subEntities[i],
         }))
     }
+    return props;
 }
 
 module.exports = {
