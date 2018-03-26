@@ -56,7 +56,7 @@ class Entity {
         if (this.flags.GIVEN_DEF) comment += ` - ${this.description}`;
         if (this.flags.FUNCTION_SCOPE || this.flags.METHOD_SCOPE) {
             this.paramList.map(i => {
-                comment += `\n * @${i.keyword} {${i.dtype.map(j=>j+'|')}} ${i.name}`;
+                comment += `\n * @${i.keyword} {${i.dtype.map(j=>j)}} ${i.name}`;
                 if (i.description) comment += ` - ${i.description}`;
             })
         }
@@ -81,6 +81,4 @@ class SubEntity {
 module.exports = {
     Entity,
     SubEntity,
-    // dTypes,
-    // entityTypes
 }

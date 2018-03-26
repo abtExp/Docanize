@@ -17,6 +17,10 @@ const fs = require('fs'),
 function editData(entity, data) {
     const lineNumber = entity.lineNumber;
     let comment = entity.formComment();
+    if (entity.flags.PREVIOUS_COMMENT) {
+        data = data.slice(0, entity.flags.PREVIOUS_COMMENT_START)
+            .concat(data.slice(entity.flags.PREVIOUS_COMMENT_END + 1));
+    }
     data = data.split('\n');
     comment = comment.split('\n');
     data = data.slice(0, lineNumber - 1)
@@ -71,7 +75,7 @@ function checkLineForEntity(line) {
         containsEntity = true;
         entity = capture[1];
         // if (entity !== 'function' || entity !== 'class')
-        //     entity = line.match(/(?:(\(.*)\))/) ? 'funcOrMeth' : null;
+        //     entity = line.match(/(?:(\(.*)\)(\{|\n\{))/gm) ? 'funcOrMeth' : null;
     }
     if (entity) {
         let possibleNames = line.split(' ').filter(i => !i.match(
@@ -103,7 +107,6 @@ function captureParams(line, props, SubEntity) {
             }) ? subEntities.map(i => i.substring(i.indexOf(':' + 1))) : [];
     }
 
-    console.log(subEntities);
     props.subEntities = [];
     for (let i = 0; i < subEntities.length; i++) {
         props.subEntities.push(new SubEntity({

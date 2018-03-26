@@ -13,14 +13,26 @@ module.exports = function(line, lineNumber) {
         FLAGS.CLASS_SCOPE = true;
     } else if (FLAGS.NEW_FLAGS) new FLAGS_DEF();
 
+    // Check for any previous doc comments
+    if (line.indexOf('//') > -1 || line.indexOf('/*') > -1) FLAGS.COMMENT_ON = true;
+    if (FLAGS.COMMENT_ON && line.match(/@.*/)) {
+        FLAGS.PREVIOUS_COMMENT = true;
+        FLAGS.PREVIOUS_COMMENT_START = lineNumber;
+    }
+
+    if (FLAGS.PREVIOUS_COMMENT && FLAGS.PREVIOUS_COMMENT_END) {
+        if (line.indexOf('*/') > -1)
+            FLAGS.PREVIOUS_COMMENT_END = lineNumber;
+    }
 
     //*1. Checking for @docanize specific comments
     if (line.match(/^[(\/)|\/\*\* ].*@docanize/)) {
+        FLAGS.PREVIOUS_COMMENT = true;
+        FLAGS.PREVIOUS_COMMENT_START = lineNumber;
         if (line.indexOf('//') === 0)
             FLAGS.SINGLE_LINE_DESCRIPTION = true;
         else if (line.indexOf('/*') === 0)
             FLAGS.MULTI_LINE_DESCRIPTION = true;
-
         FLAGS.GIVEN_DEF = true;
     }
 
@@ -33,6 +45,7 @@ module.exports = function(line, lineNumber) {
         FLAGS.DOCANIZE_FLAG_CAPTURED = true;
         props[props.docanizeFlag] = line.substring(line.indexOf(':') + 1);
         FLAGS.USER_DESCRIPTION_CAPTURED = true;
+        FLAGS.PREVIOUS_COMMENT_END = lineNumber;
     }
 
     // for multiline docanize comment
@@ -51,6 +64,7 @@ module.exports = function(line, lineNumber) {
     if (line.match(/\*\//) && !FLAGS.USER_DESCRIPTION_CAPTURED) {
         props[props.docanizeFlag] += line.substring(0, line.lastIndexOf('*'));
         FLAGS.USER_DESCRIPTION_CAPTURED = true;
+        FLAGS.PREVIOUS_COMMENT_END = lineNumber;
     }
 
     // OTHER CHECKS
