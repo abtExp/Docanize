@@ -7,6 +7,9 @@ const findEntities = require('./findEntities'),
 const readFile = util.promisify(fs.readFile);
 
 const ROOT = process.cwd();
+
+let FLAGS = require('./FLAGS');
+
 /**
  * @function generateComments - Generates JSDoc style comments and places 
  *                              them at the specified position
@@ -20,7 +23,6 @@ const ROOT = process.cwd();
 module.exports = function generateComments(files) {
     console.log('Generating Comments ...');
     let promiseList = [],
-        matchN = false,
         ext = '',
         entities = [];
 
@@ -32,12 +34,11 @@ module.exports = function generateComments(files) {
                 readFile(path.resolve(ROOT, i.path), 'utf8')
                     .then(async(data) => {
                         let lineNumber = 0;
-                        // match entity names
-                        // if found read the whole line for params
-                        // and find a way for finding the return value
                         entityObjects = data.split('\n').map(i => {
                             lineNumber++;
-                            return findEntities(i, lineNumber);
+                            let entity;
+                            [FLAGS, entity] = findEntities(i, lineNumber, FLAGS);
+                            return entity;
                         }).filter(i => i !== null);
                         await updateFileData(entityObjects, data, i.path);
                         res();
@@ -46,7 +47,6 @@ module.exports = function generateComments(files) {
                         console.error(err);
                         rej();
                     })
-                res();
             }));
         }
     }

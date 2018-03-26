@@ -1,24 +1,29 @@
-const { entityTypes, dTypes, Entity, SubEntity } = require('./Entities');
-const { checkLineForEntity } = require('./utilities');
-let FLAGS = require('./FLAGS');
+const { Entity, SubEntity } = require('./Entities');
+const { checkLineForEntity, captureParams } = require('./utilities');
 
-
-module.exports = function(line, lineNumber) {
+module.exports = function(line, lineNumber, FLAGS) {
     //match the entityTypes and create a new entity object
     //then look for subEntities and their dTypes
     let props = {};
     props.lineNumber = lineNumber;
+    if (FLAGS.KEEP_SCOPE) {
+        FLAGS = require('./FLAGS');
+        FLAGS.CLASS_SCOPE = true;
+    } else if (FLAGS.NEW_FLAGS) FLAGS = require('./FLAGS');
 
-    if (FLAGS.NEW_FLAGS) FLAGS = require('./FLAGS');
 
     //*1. Checking for @docanize specific comments
     if (line.match(/^[(\/)|\/\*\* ].*@docanize/)) {
         if (line.indexOf('//') === 0)
             FLAGS.SINGLE_LINE_DESCRIPTION = true;
-        else if (line.indexOf('/*') === 0 || line.indexOf('/**') === 0)
+        else if (line.indexOf('/*') === 0)
             FLAGS.MULTI_LINE_DESCRIPTION = true;
+
         FLAGS.GIVEN_DEF = true;
     }
+
+    // if docanize comment found and is a sigle line comment
+    // find the flag and the description of entity
     if (FLAGS.SINGLE_LINE_DESCRIPTION) {
         props.docanizeFlag = line.substring(
             line.indexOf('--' + 2), line.indexOf(':')
@@ -27,25 +32,28 @@ module.exports = function(line, lineNumber) {
         props[props.docanizeFlag] = line.substring(line.indexOf(':') + 1);
         FLAGS.USER_DESCRIPTION_CAPTURED = true;
     }
+
+    // for multiline docanize comment
     if (FLAGS.MULTI_LINE_DESCRIPTION) {
         if (!FLAGS.DOCANIZE_FLAG_CAPTURED) {
             if (line.match('--')) {
                 props.docanizeFlag = line.substring(
                     line.indexOf('--' + 2), line.indexOf(':')
                 ).trim();
-            } else return;
+            } else return [FLAGS, null];
         }
         if (!FLAGS.USER_DESCRIPTION_CAPTURED) {
             props[props.docanizeFlag] += line;
         }
     }
-    if (line.match(/\*\//) && !FLAG.USER_DESCRIPTION_CAPTURED) {
+    if (line.match(/\*\//) && !FLAGS.USER_DESCRIPTION_CAPTURED) {
         props[props.docanizeFlag] += line.substring(0, line.lastIndexOf('*'));
-        FLAG.USER_DESCRIPTION_CAPTURED = true;
+        FLAGS.USER_DESCRIPTION_CAPTURED = true;
     }
 
     // OTHER CHECKS
-    // make a method to compare against all entityTypes
+
+    // if no entity is open
     if (!FLAGS.ENTITY_OPEN) {
         const [containsEntity, entityType, entityName] = checkLineForEntity(line);
         if (containsEntity) {
@@ -55,28 +63,25 @@ module.exports = function(line, lineNumber) {
                 FLAGS.METHOD_SCOPE = true;
                 entityType = 'method';
             }
-            props.entity = entityType;
+            props.keyword = entityType;
             props.name = entityName;
             if (entityType === 'class') FLAGS.CLASS_SCOPE = true;
             else if (entityType === 'function') FLAGS.FUNCTION_SCOPE = true;
             if (FLAGS.CLASS_SCOPE) {
-                if (line.match(/extends/))
+                FLAGS.KEEP_SCOPE = true;
+                if (line.match(/extends/)) {
                     FLAGS.EXTENDS.super = line.substring(line.indexOf('extends') +
                         'extends'.length + 1, (line.lastIndexOf('{') || line.length));
+                }
                 FLAGS.ENTITY_OPEN = false;
                 FLAGS.MAKE_ENTITY = true;
             }
-        }
+        } else return [FLAGS, null];
     }
 
     if (FLAGS.ENTITY_OPEN) {
-        if (line.match(/.*\(.*\).*/))
-            props.subEntities = line.substring(
-                line.indexOf('('), line.lastIndexOf(')')
-            ).split(',');
+        captureParams(line, props, SubEntity);
         FLAGS.ENTITY_PARAMS_CAPTURED = true;
-
-        // if(line.match/return/)
         FLAGS.ENTITY_OPEN = false;
         FLAGS.MAKE_ENTITY = true;
     }
@@ -84,7 +89,8 @@ module.exports = function(line, lineNumber) {
     // FINALLY
     if (FLAGS.MAKE_ENTITY) {
         props.flags = FLAGS;
+        FLAGS.CLASS_SCOPE = false;
         FLAGS.NEW_FLAGS = true;
-        return new Entity(props);
-    } else return null;
+        return [FLAGS, new Entity(props)];
+    } else return [FLAGS, null];
 }

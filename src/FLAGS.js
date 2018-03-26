@@ -9,12 +9,6 @@ let LINE_GAP = 1;
 // Specifies whether to generate comment for constructors or not
 let CLASS_CONSTRUCTOR_DEF = false;
 
-/**
- * Set to true when an entity is triggered at any line to maintain 
- * scope info for next lines
- */
-let SCOPE_ON = false;
-
 // Specifies that open scope is class scope
 let CLASS_SCOPE = false;
 
@@ -61,6 +55,8 @@ let ENTITY_OPEN = false;
 
 let MAKE_ENTITY = false;
 
+let KEEP_SCOPE = false;
+
 let ENTITY_PARAMS_CAPTURED = false;
 
 module.exports = {
@@ -80,5 +76,6 @@ module.exports = {
     USER_DESCRIPTION_CAPTURED,
     MAKE_ENTITY,
     NEW_FLAGS,
-    ENTITY_PARAMS_CAPTURED
+    ENTITY_PARAMS_CAPTURED,
+    KEEP_SCOPE
 }
