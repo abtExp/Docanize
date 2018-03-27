@@ -8,6 +8,7 @@
 module.exports = class {
     constructor() {
         this.ANONYMOUS_FUNCTION_DEF = false;
+        this.CAPTURE_PARAMS = false;
         this.CLASS_CONSTRUCTOR_DEF = false;
         this.CLASS_SCOPE = false;
         this.COMMENT_ON = false;

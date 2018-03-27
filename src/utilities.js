@@ -16,23 +16,14 @@ const fs = require('fs'),
 
 function editData(entity, data) {
     const lineNumber = entity.lineNumber;
-    let comment = entity.formComment();
+    const comment = entity.formComment().split('\n');
     data = data.split('\n');
-    /**********************************************
-     *                                            *
-     *             Logical Error Here             *
-     *                                            *
-     **********************************************/
-    if (entity.flags.PREVIOUS_COMMENT) {
-        console.log(data.slice(0, entity.flags.PREVIOUS_COMMENT_START - 1));
-        // .concat(data.slice(entity.flags.PREVIOUS_COMMENT_END + 1));
-    }
-    comment = comment.split('\n');
-    data = data.slice(0, lineNumber - 1)
+
+    data = data.slice(0, lineNumber)
         .concat(comment)
-        .concat(data.slice(lineNumber - 1))
+        .concat(data.slice(lineNumber))
         .join('\n');
-    return data;
+    return [data, comment.length];
 }
 
 /**
@@ -49,7 +40,11 @@ function editData(entity, data) {
 
 function updateFileData(entities, data, filePath) {
     return new Promise(async(res, rej) => {
-        data = entities.map(i => editData(i, data));
+        let commentLength = -1;
+        entities.map(i => {
+            entities.map(j => j.lineNumber += commentLength);
+            [data, commentLength] = editData(i, data)
+        });
         try {
             await writeFile(path.resolve(process.cwd(), filePath), data);
             res();
@@ -79,17 +74,16 @@ function checkLineForEntity(line) {
     if (capture) {
         containsEntity = true;
         entity = capture[1];
-        /**********************************************
-         *                                            *
-         *      Don't Know Why it ain't working       *
-         *                                            *
-         **********************************************/
-        // if (entity !== 'function' || entity !== 'class') {
-        //     entity = line.match(/(?:(\(.*)\)?(\{|\n\{))/gm) ? 'funcOrMeth' : null;
-        // }
+    } else {
+        if (line.match(/(?:(\(.*)\)?(\{|\n\{))/gm)) {
+            containsEntity = true;
+            entity = 'funcOrMeth';
+            if (line.indexOf('constructor') > -1)
+                entity = 'constructor';
+        }
     }
     if (entity) {
-        let possibleNames = line.split(' ').filter(i => !i.match(
+        let possibleNames = line.trim().split(' ').filter(i => !i.match(
             /class|function|export|extends|default|=|:|\n|\r|const|let|var/
         ));
         name = possibleNames[0];

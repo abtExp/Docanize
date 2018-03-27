@@ -11,7 +11,7 @@ module.exports = function(line, lineNumber) {
     if (FLAGS.KEEP_SCOPE) {
         FLAGS = new FLAGS_DEF();
         FLAGS.CLASS_SCOPE = true;
-    } else if (FLAGS.NEW_FLAGS) new FLAGS_DEF();
+    } else if (FLAGS.NEW_FLAGS) FLAGS = new FLAGS_DEF();
 
     // Check for any previous doc comments
     if (line.indexOf('//') > -1 || line.indexOf('/*') > -1)
@@ -75,19 +75,27 @@ module.exports = function(line, lineNumber) {
 
     // if no entity is open
     if (!FLAGS.ENTITY_OPEN) {
-        const [containsEntity, entityType, entityName] =
+        let [containsEntity, entityType, entityName] =
         checkLineForEntity(line);
         if (containsEntity) {
             FLAGS.ENTITY_OPEN = true;
             FLAGS.NEW_FLAGS = false;
-            if (FLAGS.CLASS_SCOPE && entityType === 'funcOrMeth') {
-                FLAGS.METHOD_SCOPE = true;
-                entityType = 'method';
+            if (entityType === 'funcOrMeth') {
+                if (FLAGS.CLASS_SCOPE) {
+                    FLAGS.METHOD_SCOPE = true;
+                    entityType = 'method';
+                } else {
+                    entityType = 'function';
+                    FLAGS.ANONYMOUS_FUNCTION_DEF = true;
+                }
             }
+            if (entityType === 'function' || entityType === 'method' || entityType === 'constructor')
+                FLAGS.CAPTURE_PARAMS = true;
             props.keyword = entityType;
             props.name = entityName;
             if (entityType === 'class') FLAGS.CLASS_SCOPE = true;
             else if (entityType === 'function') FLAGS.FUNCTION_SCOPE = true;
+            else if (entityType === 'constructor') FLAGS.CLASS_CONSTRUCTOR_DEF = true;
             if (FLAGS.CLASS_SCOPE) {
                 FLAGS.KEEP_SCOPE = true;
                 if (line.match(/extends/)) {
@@ -100,11 +108,12 @@ module.exports = function(line, lineNumber) {
         } else return null;
     }
 
-    if (FLAGS.FUNCTION_SCOPE || FLAGS.METHOD_SCOPE) {
+    if (FLAGS.CAPTURE_PARAMS) {
         props = captureParams(line, props, SubEntity);
         FLAGS.ENTITY_PARAMS_CAPTURED = true;
         FLAGS.ENTITY_OPEN = false;
         FLAGS.MAKE_ENTITY = true;
+        FLAGS.CAPTURE_PARAMS = false;
     }
 
     // FINALLY
