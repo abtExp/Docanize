@@ -14,55 +14,62 @@ module.exports = function(line, lineNumber) {
     } else if (FLAGS.NEW_FLAGS) new FLAGS_DEF();
 
     // Check for any previous doc comments
-    if (line.indexOf('//') > -1 || line.indexOf('/*') > -1) FLAGS.COMMENT_ON = true;
+    if (line.indexOf('//') > -1 || line.indexOf('/*') > -1)
+        FLAGS.COMMENT_ON = true;
+
     if (FLAGS.COMMENT_ON && line.match(/@.*/)) {
         FLAGS.PREVIOUS_COMMENT = true;
         FLAGS.PREVIOUS_COMMENT_START = lineNumber;
     }
 
-    if (FLAGS.PREVIOUS_COMMENT && FLAGS.PREVIOUS_COMMENT_END) {
-        if (line.indexOf('*/') > -1)
+    if (FLAGS.PREVIOUS_COMMENT && !FLAGS.PREVIOUS_COMMENT_END) {
+        if (line.indexOf('*/') > -1) {
             FLAGS.PREVIOUS_COMMENT_END = lineNumber;
+            FLAGS.COMMENT_ON = false;
+        }
     }
 
-    //*1. Checking for @docanize specific comments
-    // if (line.match(/^[(\/)|\/\*\* ].*@docanize/)) {
-    //     FLAGS.PREVIOUS_COMMENT = true;
-    //     FLAGS.PREVIOUS_COMMENT_START = lineNumber;
-    //     if (line.indexOf('//') === 0)
-    //         FLAGS.SINGLE_LINE_DESCRIPTION = true;
-    //     else if (line.indexOf('/*') === 0)
-    //         FLAGS.MULTI_LINE_DESCRIPTION = true;
-    //     FLAGS.GIVEN_DEF = true;
-    // }
-    // if (FLAGS.SINGLE_LINE_DESCRIPTION) {
-    //     props.docanizeFlag = line.substring(
-    //         line.indexOf('--' + 2), line.indexOf(':')
-    //     ).trim();
-    //     FLAGS.DOCANIZE_FLAG_CAPTURED = true;
-    //     props[props.docanizeFlag] = line.substring(line.indexOf(':') + 1);
-    //     FLAGS.USER_DESCRIPTION_CAPTURED = true;
-    //     FLAGS.PREVIOUS_COMMENT_END = lineNumber;
-    // }
+    // check for docanize comments
+    if (line.match(/^[(\/)|\/\*\* ].*@docanize/)) {
+        FLAGS.COMMENT_ON = true;
+        FLAGS.PREVIOUS_COMMENT = true;
+        FLAGS.PREVIOUS_COMMENT_START = lineNumber;
+        if (line.indexOf('//') === 0)
+            FLAGS.SINGLE_LINE_DESCRIPTION = true;
+        else if (line.indexOf('/*') === 0)
+            FLAGS.MULTI_LINE_DESCRIPTION = true;
+        FLAGS.GIVEN_DEF = true;
+    }
+    if (FLAGS.SINGLE_LINE_DESCRIPTION) {
+        props.docanizeFlag = line.substring(
+            line.indexOf('--' + 2), line.indexOf(':')
+        ).trim();
+        FLAGS.DOCANIZE_FLAG_CAPTURED = true;
+        props[props.docanizeFlag] = line.substring(line.indexOf(':') + 1);
+        FLAGS.USER_DESCRIPTION_CAPTURED = true;
+        FLAGS.COMMENT_ON = false;
+        FLAGS.PREVIOUS_COMMENT_END = lineNumber;
+    }
 
-    // // for multiline docanize comment
-    // if (FLAGS.MULTI_LINE_DESCRIPTION) {
-    //     if (!FLAGS.DOCANIZE_FLAG_CAPTURED) {
-    //         if (line.match('--')) {
-    //             props.docanizeFlag = line.substring(
-    //                 line.indexOf('--' + 2), line.indexOf(':')
-    //             ).trim();
-    //         } else return null;
-    //     }
-    //     if (!FLAGS.USER_DESCRIPTION_CAPTURED) {
-    //         props[props.docanizeFlag] += line;
-    //     }
-    // }
-    // if (line.match(/\*\//) && !FLAGS.USER_DESCRIPTION_CAPTURED) {
-    //     props[props.docanizeFlag] += line.substring(0, line.lastIndexOf('*'));
-    //     FLAGS.USER_DESCRIPTION_CAPTURED = true;
-    //     FLAGS.PREVIOUS_COMMENT_END = lineNumber;
-    // }
+    // for multiline docanize comment
+    if (FLAGS.MULTI_LINE_DESCRIPTION) {
+        if (!FLAGS.DOCANIZE_FLAG_CAPTURED) {
+            if (line.match('--')) {
+                props.docanizeFlag = line.substring(
+                    line.indexOf('--' + 2), line.indexOf(':')
+                ).trim();
+            } else return null;
+        }
+        if (!FLAGS.USER_DESCRIPTION_CAPTURED) {
+            props[props.docanizeFlag] += line;
+        }
+    }
+    if (line.match(/\*\//) && !FLAGS.USER_DESCRIPTION_CAPTURED) {
+        props[props.docanizeFlag] += line.substring(0, line.lastIndexOf('*'));
+        FLAGS.USER_DESCRIPTION_CAPTURED = true;
+        FLAGS.COMMENT_ON = false;
+        FLAGS.PREVIOUS_COMMENT_END = lineNumber;
+    }
 
     // OTHER CHECKS
 

@@ -18,11 +18,15 @@ function editData(entity, data) {
     const lineNumber = entity.lineNumber;
     let comment = entity.formComment();
     data = data.split('\n');
-    // if (entity.flags.PREVIOUS_COMMENT) {
-    //     data = data.slice(0, entity.flags.PREVIOUS_COMMENT_START - 1)
-    //         .concat(data.slice(entity.flags.PREVIOUS_COMMENT_END + 1));
-    // }
-    // console.log(data);
+    /**********************************************
+     *                                            *
+     *             Logical Error Here             *
+     *                                            *
+     **********************************************/
+    if (entity.flags.PREVIOUS_COMMENT) {
+        console.log(data.slice(0, entity.flags.PREVIOUS_COMMENT_START - 1));
+        // .concat(data.slice(entity.flags.PREVIOUS_COMMENT_END + 1));
+    }
     comment = comment.split('\n');
     data = data.slice(0, lineNumber - 1)
         .concat(comment)
@@ -75,7 +79,11 @@ function checkLineForEntity(line) {
     if (capture) {
         containsEntity = true;
         entity = capture[1];
-        console.log(entity);
+        /**********************************************
+         *                                            *
+         *      Don't Know Why it ain't working       *
+         *                                            *
+         **********************************************/
         // if (entity !== 'function' || entity !== 'class') {
         //     entity = line.match(/(?:(\(.*)\)?(\{|\n\{))/gm) ? 'funcOrMeth' : null;
         // }

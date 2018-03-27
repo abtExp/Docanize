@@ -1,6 +1,3 @@
-/**
- * @class Names @extends Enter 
- */
 export default class Names extends Enter {
     constructor(a, b) {
         console.log(a, b);
