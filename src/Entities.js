@@ -36,25 +36,28 @@
 // ];
 
 class Entity {
-    constructor(props) {
+    constructor(props = {}) {
         this.keyword = props.keyword;
         this.name = props.name;
         this.flags = props.flags;
         this.description = props.description;
         this.lineNumber = props.lineNumber;
-        this.returnVal = null;
+        this.returnVal = props.returnVal;
+        this.specifiers = props.specifiers;
         // array of subEntities objects
         this.paramList = props.subEntities || [];
     }
 
     formComment() {
         let comment = '/**';
-        comment += `\n * @${this.keyword} ${this.name}`;
+        comment += `\n * @${this.keyword}`;
+        comment += ` ${this.specifiers ? this.specifiers.map(i=>`@${i}`) : ''} `;
+        comment += `${this.name ? this.name : ''}`;
         if (this.flags.CLASS_SCOPE && this.flags.EXTENDS.super) {
             comment += ` @extends ${this.flags.EXTENDS.super}`;
         }
         if (this.flags.GIVEN_DEF) comment += ` - ${this.description}`;
-        if (this.flags.FUNCTION_SCOPE || this.flags.METHOD_SCOPE) {
+        if (this.flags.FUNCTION_SCOPE || this.flags.METHOD_SCOPE || this.flags.CLASS_CONSTRUCTOR_DEF) {
             this.paramList.map(i => {
                 comment += `\n * @${i.keyword} {${i.dtype.map(j=>j)}} ${i.name}`;
                 if (i.description) comment += ` - ${i.description}`;
@@ -74,6 +77,12 @@ class SubEntity {
         this.dtype = props.type || 'any';
         this.name = props.name;
         this.description = props.description || 'none';
+    }
+}
+
+class Comment{
+    constructor(props = {}){
+        
     }
 }
 

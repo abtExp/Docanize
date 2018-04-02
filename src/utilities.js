@@ -69,7 +69,7 @@ function updateFileData(entities, data, filePath) {
  * 
  */
 function checkLineForEntity(line) {
-    let containsEntity, entity, name;
+    let containsEntity, entity, name, specifiers = [];
     const capture = /(?:(class|function)).*(\(|\{)/gm.exec(line);
     if (capture) {
         containsEntity = true;
@@ -78,18 +78,23 @@ function checkLineForEntity(line) {
         if (line.match(/(?:(\(.*)\)?(\{|\n\{))/gm)) {
             containsEntity = true;
             entity = 'funcOrMeth';
-            if (line.indexOf('constructor') > -1)
+            if (line.indexOf('constructor') > -1) {
                 entity = 'constructor';
+                return [containsEntity, entity];
+            }
         }
     }
     if (entity) {
         let possibleNames = line.trim().split(' ').filter(i => !i.match(
             /class|function|export|extends|default|=|:|\n|\r|const|let|var/
         ));
-        name = possibleNames[0];
+        possibleNames.map(i => {
+            if (i.match(/public|private|static/)) specifiers.push(i);
+            else if (!name) name = i;
+        })
         name = name.indexOf('(') > -1 ? name.substring(0, name.indexOf('(')) : name;
     }
-    return [containsEntity, entity, name];
+    return [containsEntity, entity, name, [specifiers]];
 }
 
 
@@ -102,7 +107,7 @@ function checkLineForEntity(line) {
 function captureParams(line, props, SubEntity) {
     let subEntities = [],
         typeDefs = [];
-    if (line.match(/.*\(.*\).*/)) {
+    if (line.match(/.*\(.*\).*/gm)) {
         subEntities = line.substring(
             line.indexOf('(') + 1, line.lastIndexOf(')')
         ).split(',');

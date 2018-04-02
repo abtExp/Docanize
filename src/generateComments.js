@@ -2,6 +2,7 @@ const findEntities = require('./findEntities'),
     path = require('path'),
     fs = require('fs'),
     util = require('util'),
+    FLAGS_DEF = require('./FLAGS'),
     { updateFileData } = require('./utilities');
 
 const readFile = util.promisify(fs.readFile);
@@ -31,11 +32,13 @@ module.exports = function generateComments(files) {
             promiseList.push(new Promise(async(res, rej) => {
                 readFile(path.resolve(ROOT, i.path), 'utf8')
                     .then(async(data) => {
+                        let FLAGS = new FLAGS_DEF();
                         let lineNumber = 0;
                         entityObjects = data.split('\n').map(i => {
                             lineNumber++;
                             let entity;
-                            return findEntities(i, lineNumber);
+                            [entity, FLAGS] = findEntities(i, lineNumber, FLAGS);
+                            return entity;
                         }).filter(i => i !== null);
                         await updateFileData(entityObjects, data, i.path);
                         res();

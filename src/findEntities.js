@@ -1,11 +1,12 @@
-const { Entity, SubEntity } = require('./Entities');
+const { Entity, SubEntity, Comment } = require('./Entities');
 const { checkLineForEntity, captureParams } = require('./utilities');
 const FLAGS_DEF = require('./FLAGS');
-let FLAGS = new FLAGS_DEF();
+// let FLAGS = new FLAGS_DEF();
 
-module.exports = function(line, lineNumber) {
+module.exports = function(line, lineNumber, _FLAGS) {
     //match the entityTypes and create a new entity object
     //then look for subEntities and their dTypes
+    let FLAGS = _FLAGS;
     let props = {};
     props.lineNumber = lineNumber;
     if (FLAGS.KEEP_SCOPE) {
@@ -15,8 +16,8 @@ module.exports = function(line, lineNumber) {
 
     // Check for any previous doc comments
     if (line.indexOf('//') > -1 || line.indexOf('/*') > -1)
-        FLAGS.COMMENT_ON = true;
-
+    FLAGS.COMMENT_ON = true;
+    
     if (FLAGS.COMMENT_ON && line.match(/@.*/)) {
         FLAGS.PREVIOUS_COMMENT = true;
         FLAGS.PREVIOUS_COMMENT_START = lineNumber;
@@ -58,7 +59,7 @@ module.exports = function(line, lineNumber) {
                 props.docanizeFlag = line.substring(
                     line.indexOf('--' + 2), line.indexOf(':')
                 ).trim();
-            } else return null;
+            } else return [null, FLAGS];
         }
         if (!FLAGS.USER_DESCRIPTION_CAPTURED) {
             props[props.docanizeFlag] += line;
@@ -75,7 +76,7 @@ module.exports = function(line, lineNumber) {
 
     // if no entity is open
     if (!FLAGS.ENTITY_OPEN) {
-        let [containsEntity, entityType, entityName] =
+        let [containsEntity, entityType, entityName, specifiers] =
         checkLineForEntity(line);
         if (containsEntity) {
             FLAGS.ENTITY_OPEN = true;
@@ -93,6 +94,7 @@ module.exports = function(line, lineNumber) {
                 FLAGS.CAPTURE_PARAMS = true;
             props.keyword = entityType;
             props.name = entityName;
+            props.specifiers = specifiers;
             if (entityType === 'class') FLAGS.CLASS_SCOPE = true;
             else if (entityType === 'function') FLAGS.FUNCTION_SCOPE = true;
             else if (entityType === 'constructor') FLAGS.CLASS_CONSTRUCTOR_DEF = true;
@@ -105,8 +107,16 @@ module.exports = function(line, lineNumber) {
                 FLAGS.ENTITY_OPEN = false;
                 FLAGS.MAKE_ENTITY = true;
             }
-        } else return null;
+        } else return [null, FLAGS];
     }
+
+    // 'll have to keep entities open and have to keep track of open entities
+    // if(FLAGS.ENTITY_OPEN){
+    //     if(line.match(/return/)){
+    //         FLAGS.RETURN_VAL = true;
+    //         props.returnVal = line.substring(line.indexOf('return')+('return'.length) + 1);
+    //     }
+    // }
 
     if (FLAGS.CAPTURE_PARAMS) {
         props = captureParams(line, props, SubEntity);
@@ -120,6 +130,6 @@ module.exports = function(line, lineNumber) {
     if (FLAGS.MAKE_ENTITY) {
         props.flags = FLAGS;
         FLAGS.NEW_FLAGS = true;
-        return new Entity(props);
-    } else return null;
+        return [new Entity(props), FLAGS];
+    } else return [null, FLAGS];
 }
