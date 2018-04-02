@@ -1,16 +1,11 @@
-/**
- * @function named
- * @param {any} name - none
- * @param {any}  classed - none
- */
 function named(name, classed) {
-
+    return name;
 }
 
-/**
- * @function def
- * @param {any} avc - none
- */
 function def(avc) {
+    return avc;
+}
 
+const func = (a, b) => {
+    return b;
 }
