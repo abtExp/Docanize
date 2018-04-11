@@ -89,6 +89,7 @@ function checkLineForEntity(line) {
         ));
         possibleNames.map(i => {
             if (i.match(/public|private|static/)) specifiers.push(i);
+            else if(i.match(/if|else|while|for|map/)) containsEntity = false;
             else if (!name) name = i;
         })
         name = name ? 
