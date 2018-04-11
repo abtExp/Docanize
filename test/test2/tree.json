@@ -1,0 +1,25 @@
+{
+    "name": "root",
+    "type": "dir",
+    "path": ".",
+    "files": {
+        "0": {
+            "id": 0,
+            "name": "classTest.js",
+            "extension": "js",
+            "type": "file",
+            "path": "./classTest.js",
+            "imports": [],
+            "exports": []
+        },
+        "1": {
+            "id": 1,
+            "name": "testFile.js",
+            "extension": "js",
+            "type": "file",
+            "path": "./testFile.js",
+            "imports": [],
+            "exports": []
+        }
+    }
+}
