@@ -1,6 +1,6 @@
 {
     "name": "docanize",
-    "version": "0.8.0-pre-alpha",
+    "version": "0.9.1-alpha",
     "description": "A JSDoc Style comment generator for easy documentation generation",
     "main": "index.js",
     "repository": "https://github.com/abtExp/Docanize",
