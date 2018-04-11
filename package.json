@@ -1,12 +1,17 @@
 {
     "name": "docanize",
-    "version": "0.9.1-alpha",
+    "version": "0.9.2-alpha",
     "description": "A JSDoc Style comment generator for easy documentation generation",
     "main": "index.js",
     "repository": "https://github.com/abtExp/Docanize",
     "author": "abtExp<abt.exp@gmail.com>",
     "license": "MIT",
     "private": false,
+    "keywords": [
+        "Productivity",
+        "Developer Utility Tool",
+        "Documentation"
+    ],
     "devDependencies": {
         "organise": "^0.0.5",
         "yargs": "^11.0.0"
