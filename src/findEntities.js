@@ -5,13 +5,13 @@ const FLAGS_DEF = require('./FLAGS');
 
 module.exports = function(line, lineNumber, _FLAGS, props) {
     let FLAGS = _FLAGS;
-
+    const linspace = FLAGS.LINE_SPACING;
     if (FLAGS.KEEP_CLASS_SCOPE) {
-        FLAGS = new FLAGS_DEF();
+        FLAGS = new FLAGS_DEF(linspace);
         FLAGS.CLASS_SCOPE = true;
         props = {};
     } else if (FLAGS.NEW_FLAGS){
-        FLAGS = new FLAGS_DEF();
+        FLAGS = new FLAGS_DEF(linspace);
         props = {};
     }
 

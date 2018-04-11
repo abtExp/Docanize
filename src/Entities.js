@@ -45,12 +45,11 @@ class Entity {
         this.returnVal = props.returnVal;
         this.specifiers = props.specifiers;
         this.paramList = props.subEntities || [];
-        Entity.Entities.push(this);
     }
 
     formComment() {
-        let comment = '/**';
-        comment += `\n * @${this.keyword}`;
+        let comment = '';
+        comment += ` * @${this.keyword}`;
         if(this.specifiers && this.specifiers.length > 0){
             comment += ` ${this.specifiers.map(i=>`@${i}`)} `
         }
@@ -68,12 +67,18 @@ class Entity {
         if (this.flags.RETURN_VAL) {
             comment += `\n * @returns ${this.returnVal}`;
         }
-        comment += '\n */';
+
+        comment = comment.split('\n').map(i=>{
+            for(let j=0; j<this.flags.LINE_SPACING; j++){
+                i += '\n *';
+            }
+            return i;
+        });
+
+        comment = '/**\n'+comment.join('\n')+'/';
         return comment;
     }
 }
-
-Entity.Entities = [];
 
 class SubEntity {
     constructor(props = {}) {
@@ -86,11 +91,15 @@ class SubEntity {
 
 class Comment{
     constructor(props = {}){
-        
+        this.nature = props.nature;
+        this.lineStart = props.flags.PREVIOUS_COMMENT_START;
+        this.lineEnd = props.flags.PREVIOUS_COMMENT_END;
+        this.parentEntity = props.flags.COMMENT_PARENT;
     }
 }
 
 module.exports = {
     Entity,
     SubEntity,
+    Comment
 }

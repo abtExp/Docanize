@@ -15,7 +15,7 @@ const readFile = util.promisify(fs.readFile);
  * 
  */
 
-module.exports = function generateComments(ROOT,files) {
+module.exports = function generateComments(ROOT,files, linspace) {
     console.log('Generating Comments ...');
     let promiseList = [],
         ext = '',
@@ -28,7 +28,7 @@ module.exports = function generateComments(ROOT,files) {
             promiseList.push(new Promise(async(res, rej) => {
                 readFile(path.resolve(ROOT, i.path), 'utf8')
                     .then(async(data) => {
-                        let FLAGS = new FLAGS_DEF();
+                        let FLAGS = new FLAGS_DEF(linspace);
                         let props = {};
                         let lineNumber = 0;
                         entityObjects = data.split('\n').map(i => {

@@ -6,7 +6,7 @@
  **********************************************/
 
 module.exports = class {
-    constructor() {
+    constructor(linspace = 1) {
         this.ANONYMOUS_FUNCTION_DEF = false;
         this.CAPTURE_PARAMS = false;
         this.CLASS_CONSTRUCTOR_DEF = false;
@@ -31,6 +31,6 @@ module.exports = class {
         this.RETURN_VAL = false;
         this.SINGLE_LINE_DESCRIPTION = false;
         this.USER_DESCRIPTION_CAPTURED = false;
-        this.LINE_SPACING = 1;
+        this.LINE_SPACING = linspace;
     }
 }
