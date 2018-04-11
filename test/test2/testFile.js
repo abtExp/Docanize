@@ -9,3 +9,9 @@ function def(avc) {
 const func = (a, b) => {
     return b;
 }
+
+const obj = {
+    aname:()=>{
+        
+    }
+}

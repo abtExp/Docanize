@@ -3,7 +3,6 @@ const fs = require('fs'),
     util = require('util'),
     readdir = util.promisify(fs.readdir);
 
-const ROOT = process.cwd();
 
 let AllFiles, idx, id;
 
@@ -14,8 +13,7 @@ let AllFiles, idx, id;
  * 
  */
 
-
-async function makeDirTree() {
+async function makeDirTree(ROOT) {
     console.log('Creating Directory Tree ...');
     let dirTree = {},
         dirs = [],
@@ -24,13 +22,14 @@ async function makeDirTree() {
     idx = 0;
     id = 0;
 
+
     dirs.push({ name: 'root', type: 'dir', path: `.`, files: {} });
     dirTree['root'] = { name: 'root', type: 'dir', path: `.`, files: {} };
     return new Promise(async(res, rej) => {
         console.log('Reading files ...');
         while (dirs.length > 0) {
             let activeDir = dirs.shift(),
-                files = await walkTree(activeDir.path);
+                files = await walkTree(ROOT,activeDir.path);
             if (files.length > 0) {
                 for (const i of files) {
                     let name = i.type === 'dir' ? i.name : idx++;
@@ -56,7 +55,7 @@ async function makeDirTree() {
  * 
  */
 
-function walkTree(dirPath) {
+ function walkTree(ROOT,dirPath) {
     let filesindir = [];
     return new Promise((res, rej) => {
         if (dirPath.match(/node_modules|.git|bower|LICENCE|tree.json/)) {
@@ -65,12 +64,12 @@ function walkTree(dirPath) {
 
         const relative = `${dirPath}/`,
             readPath = dirPath === '.' ? ROOT + '/' : dirPath + '/';
-
+            
         readdir(path.resolve(readPath))
             .then(files => {
                 files.map(async(i) => {
                     let file;
-                    if (fs.statSync(path.join(relative, i)).isDirectory()) {
+                    if (fs.statSync(path.join(readPath, i)).isDirectory()) {
                         file = {
                             name: i,
                             type: 'dir',

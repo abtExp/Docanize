@@ -4,9 +4,9 @@ export default class Names extends Enter {
         return a;
     }
     static methodsName(some, def) {
-
+        return 'hi';
     }
     static defFunc(asd) {
-
+        return asd.map(i=>i**2);
     }
 }

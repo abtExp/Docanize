@@ -38,7 +38,7 @@ function editData(entity, data) {
  * 
  */
 
-function updateFileData(entities, data, filePath) {
+function updateFileData(ROOT, entities, data, filePath) {
     return new Promise(async(res, rej) => {
         let commentLength = -1;
         entities.map(i => {
@@ -46,7 +46,7 @@ function updateFileData(entities, data, filePath) {
             [data, commentLength] = editData(i, data)
         });
         try {
-            await writeFile(path.resolve(process.cwd(), filePath), data);
+            await writeFile(path.resolve(ROOT, filePath), data);
             res();
         } catch (err) {
             rej();
@@ -80,7 +80,6 @@ function checkLineForEntity(line) {
             entity = 'funcOrMeth';
             if (line.indexOf('constructor') > -1) {
                 entity = 'constructor';
-                return [containsEntity, entity];
             }
         }
     }
@@ -92,9 +91,12 @@ function checkLineForEntity(line) {
             if (i.match(/public|private|static/)) specifiers.push(i);
             else if (!name) name = i;
         })
-        name = name.indexOf('(') > -1 ? name.substring(0, name.indexOf('(')) : name;
+        name = name ? 
+        name.indexOf('(') > -1 ? name.substring(0, name.indexOf('(')) : name
+        : null;
+        if(entity=== 'constructor') name = null;
     }
-    return [containsEntity, entity, name, [specifiers]];
+    return [containsEntity, entity, name, specifiers];
 }
 
 

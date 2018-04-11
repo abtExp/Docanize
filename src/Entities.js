@@ -44,15 +44,17 @@ class Entity {
         this.lineNumber = props.lineNumber;
         this.returnVal = props.returnVal;
         this.specifiers = props.specifiers;
-        // array of subEntities objects
         this.paramList = props.subEntities || [];
+        Entity.Entities.push(this);
     }
 
     formComment() {
         let comment = '/**';
         comment += `\n * @${this.keyword}`;
-        comment += ` ${this.specifiers ? this.specifiers.map(i=>`@${i}`) : ''} `;
-        comment += `${this.name ? this.name : ''}`;
+        if(this.specifiers && this.specifiers.length > 0){
+            comment += ` ${this.specifiers.map(i=>`@${i}`)} `
+        }
+        comment += ` ${this.name ? this.name : ''} `;
         if (this.flags.CLASS_SCOPE && this.flags.EXTENDS.super) {
             comment += ` @extends ${this.flags.EXTENDS.super}`;
         }
@@ -70,6 +72,8 @@ class Entity {
         return comment;
     }
 }
+
+Entity.Entities = [];
 
 class SubEntity {
     constructor(props = {}) {

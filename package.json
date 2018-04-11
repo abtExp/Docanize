@@ -1,6 +1,6 @@
 {
     "name": "docanize",
-    "version": "0.5.0",
+    "version": "0.8.0-pre-alpha",
     "description": "A JSDoc Style comment generator for easy documentation generation",
     "main": "index.js",
     "repository": "https://github.com/abtExp/Docanize",
@@ -8,8 +8,8 @@
     "license": "MIT",
     "private": false,
     "devDependencies": {
-        "webpack": "^3.11.0",
-        "organise": "^0.0.5"
+        "organise": "^0.0.5",
+        "yargs": "^11.0.0"
     },
     "bin": {
         "docanize": "./index.js"

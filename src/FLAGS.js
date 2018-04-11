@@ -20,7 +20,7 @@ module.exports = class {
         };
         this.FUNCTION_SCOPE = false;
         this.GIVEN_DEF = false;
-        this.KEEP_SCOPE = false;
+        this.KEEP_CLASS_SCOPE = false;
         this.MAKE_ENTITY = false;
         this.METHOD_SCOPE = false;
         this.MULTI_LINE_DESCRIPTION = false;
@@ -31,5 +31,6 @@ module.exports = class {
         this.RETURN_VAL = false;
         this.SINGLE_LINE_DESCRIPTION = false;
         this.USER_DESCRIPTION_CAPTURED = false;
+        this.LINE_SPACING = 1;
     }
 }
